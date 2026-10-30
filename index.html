@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KDPEasy A+ Image Fitter</title>
+<meta name="description" content="Fit any image to the exact shape and size an Amazon A+ Content slot needs — nothing uploaded, nothing stretched.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wordmark">
+    <span class="wm-1">KDPEasy</span> <span class="wm-2">A+ Image Fitter</span>
+  </div>
+  <div class="privacy-pill">
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false">
+      <path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <rect x="4.5" y="10" width="15" height="10.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="15.2" r="1.4" fill="currentColor"/>
+    </svg>
+    <span>Your image never leaves your computer.</span>
+  </div>
+</header>
+
+<p class="intro">Fit any AI image to the exact shape and size your A+ Content slot needs — nothing stretched, nothing uploaded.</p>
+
+<main class="layout">
+
+  <!-- ============================= SIDEBAR ============================= -->
+  <aside class="sidebar">
+
+    <div id="bannerHost" class="banner-host" aria-live="polite"></div>
+
+    <!-- STEP 1 ------------------------------------------------------- -->
+    <section class="step" id="step1">
+      <div class="step-head">
+        <span class="badge">1</span>
+        <h2 class="step-label"><label for="moduleSelect">Choose your A+ module</label></h2>
+        <button type="button" class="help-btn" id="help1" aria-expanded="false" aria-label="About A+ modules">?</button>
+        <div class="popover" id="pop1" role="dialog" aria-label="About A+ modules" hidden>
+          A+ Content is the extra pictures-and-text section on your book's Amazon page. Pick the same
+          module you will choose in KDP's A+ Content Manager, so every picture gets the right shape.
+        </div>
+      </div>
+      <div class="step-body">
+        <select id="moduleSelect" class="control"></select>
+        <p class="hint" id="moduleSummary"></p>
+        <div class="tag-wrap" id="unconfirmedWrap" hidden>
+          <button type="button" class="tag tag-warn" id="unconfirmedTag" aria-expanded="false">Unconfirmed size</button>
+          <div class="popover popover-tag" id="popUnconfirmed" role="dialog" aria-label="About unconfirmed sizes" hidden>
+            <span id="popUnconfirmedText"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 ------------------------------------------------------- -->
+    <section class="step" id="step2">
+      <div class="step-head">
+        <span class="badge">2</span>
+        <h2 class="step-label" id="step2Label">Add your image</h2>
+      </div>
+      <div class="step-body">
+        <div class="slot-list" id="slotList"></div>
+        <input type="file" id="fileInput" accept="image/png,image/jpeg" hidden>
+        <p class="hint" id="uploadHint">PNG or JPG. Drag it in, click to browse, or paste with Ctrl+V.</p>
+      </div>
+    </section>
+
+    <!-- STEP 3 ------------------------------------------------------- -->
+    <section class="step locked" id="step3">
+      <div class="step-head">
+        <span class="badge">3</span>
+        <h2 class="step-label">Choose how it fits</h2>
+        <button type="button" class="help-btn" id="help3" aria-expanded="false" aria-label="About fitting">?</button>
+        <div class="popover" id="pop3" role="dialog" aria-label="About fitting" hidden>
+          Your picture is probably a different shape than the slot. "Fill the frame" crops the edges
+          so the picture covers the whole slot — KDP crops to the slot shape anyway, so this is
+          usually the best choice. "Fit inside" keeps the whole picture and fills the leftover space.
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="seg" role="group" aria-label="How the picture fits the slot">
+          <button type="button" class="seg-btn is-on" id="modeFill" aria-pressed="true">Fill the frame</button>
+          <button type="button" class="seg-btn" id="modeFit" aria-pressed="false">Fit inside</button>
+        </div>
+        <p class="hint" id="modeHint"></p>
+
+        <!-- Fill the frame: zoom + reset -->
+        <div class="field" id="fillModeField">
+          <label class="field-label" for="zoomRange">Zoom <span class="field-val" id="zoomVal">100%</span></label>
+          <input type="range" id="zoomRange" min="100" max="400" step="5" value="100">
+          <button type="button" class="link-btn" id="resetCropBtn">Reset position and zoom</button>
+          <p class="hint">Zooming in crops closer and uses fewer of your picture's pixels, so the picture gets softer.</p>
+        </div>
+
+        <!-- Fit inside: what goes in the leftover space -->
+        <div class="field" id="fitModeField" hidden>
+          <label class="field-label" for="fillSelect">Fill the leftover space</label>
+          <select id="fillSelect" class="control">
+            <option value="auto">Auto — pick for me (recommended)</option>
+            <option value="white">White</option>
+            <option value="solid">Solid color</option>
+            <option value="blur">Blurred background</option>
+          </select>
+          <p class="chip" id="autoChip" hidden></p>
+          <div class="solid-color-row" id="solidColorRow" hidden>
+            <button type="button" class="btn-swatch" id="colorSwatchBtn">
+              <span class="swatch swatch-lg" id="colorSwatchPreview"></span>
+              <span id="colorSwatchLabel">Pick color</span>
+            </button>
+            <button type="button" class="link-btn" id="colorResetBtn" hidden>Reset to auto-detected</button>
+            <input type="color" id="colorFallbackInput" hidden aria-label="Pick a solid color">
+          </div>
+          <p class="hint" id="fillHint"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4 ------------------------------------------------------- -->
+    <section class="step locked" id="step4">
+      <div class="step-head">
+        <span class="badge">4</span>
+        <h2 class="step-label">Choose size and file type</h2>
+        <button type="button" class="help-btn" id="help4" aria-expanded="false" aria-label="About size and file type">?</button>
+        <div class="popover" id="pop4" role="dialog" aria-label="About size and file type" hidden>
+          KDP only gives you a minimum size, and it lets you zoom into your picture. "Sharp" makes
+          the file twice that size so it stays crisp. We never stretch your picture past what it
+          really has — if it can't fill that size, we use the biggest size it can. KDP accepts
+          JPG or PNG files up to 3 MB.
+        </div>
+      </div>
+      <div class="step-body">
+        <span class="field-label" id="sizeLabel">Size</span>
+        <div class="seg" role="group" aria-labelledby="sizeLabel">
+          <button type="button" class="seg-btn is-on" id="sizeSharp" aria-pressed="true">Sharp (2× minimum)</button>
+          <button type="button" class="seg-btn" id="sizeMin" aria-pressed="false">Minimum</button>
+        </div>
+        <p class="hint" id="sizeHint"></p>
+
+        <div class="field">
+          <span class="field-label" id="formatLabel">File type</span>
+          <div class="seg" role="group" aria-labelledby="formatLabel">
+            <button type="button" class="seg-btn is-on" id="fmtAuto" aria-pressed="true">Auto</button>
+            <button type="button" class="seg-btn" id="fmtPng" aria-pressed="false">PNG</button>
+            <button type="button" class="seg-btn" id="fmtJpg" aria-pressed="false">JPG</button>
+          </div>
+          <p class="hint" id="formatHint"></p>
+        </div>
+      </div>
+    </section>
+
+    <div class="sidebar-foot">
+      <p class="foot-note">This tool only fits your picture. The final check is KDP's own preview in A+ Content Manager.</p>
+      <div class="foot-buttons">
+        <!-- The label <span> must stay in place (only its text changes): replacing it while the
+             mouse is down would swallow the click. -->
+        <button type="button" class="btn btn-primary" id="zipBtn" hidden disabled title="Add an image first.">
+          <span class="spinner" aria-hidden="true" hidden></span><span class="btn-label">Download all (ZIP)</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="downloadBtn" disabled title="Add an image first.">
+          <span class="spinner" aria-hidden="true" hidden></span><span class="btn-label">Download</span>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ============================= CONTENT ============================= -->
+  <section class="content">
+
+    <div class="preview-pin">
+    <div class="toolbar">
+      <p class="toolbar-title" id="previewTitle">Preview</p>
+    </div>
+
+    <div class="stage" id="stage">
+
+      <!-- empty state / drop zone (for the slot being previewed) -->
+      <div class="empty" id="emptyState" tabindex="0" role="button" aria-label="Drop your image here, or press Enter to browse">
+        <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true" focusable="false">
+          <rect x="6" y="10" width="36" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/>
+          <circle cx="16.5" cy="20" r="3" fill="currentColor"/>
+          <path d="M9 34l10-10 7 7 6-5 7 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p class="empty-head" id="emptyHead">Drop your image here</p>
+        <p class="empty-sub" id="emptySub">or click to browse — PNG or JPG</p>
+        <p class="empty-muted">You can also paste an image with Ctrl+V.</p>
+      </div>
+
+      <!-- picture + result panes -->
+      <div class="panes" id="panes" hidden>
+        <figure class="pane pane-adjust" id="paneAdjust">
+          <figcaption class="pane-label">Your picture — drag the frame to choose what stays</figcaption>
+          <div class="pane-box" id="adjustBox" tabindex="0" role="group"
+               aria-label="Crop frame. Use the arrow keys to move it, and plus or minus to zoom.">
+            <div class="sheet sheet-adjust" id="adjustSheet">
+              <canvas id="adjustCanvas"></canvas>
+              <canvas id="adjustOverlay" class="overlay"></canvas>
+            </div>
+          </div>
+        </figure>
+        <figure class="pane" id="paneResult">
+          <figcaption class="pane-label" id="resultLabel">Result</figcaption>
+          <div class="pane-box" id="resultBox">
+            <div class="sheet" id="resultSheet">
+              <canvas id="resultCanvas"></canvas>
+            </div>
+          </div>
+        </figure>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    </div>
+
+    </div>
+
+    <p class="empty-privacy" id="emptyPrivacy">Your image never leaves your computer.</p>
+
+    <div class="readout" id="readout" aria-live="polite">
+      <p class="readout-main" id="outMain">Output: —</p>
+      <p class="readout-sub" id="outSub"></p>
+      <div class="quality" id="quality" hidden>
+        <p class="q-title" id="qTitle"></p>
+        <p class="q-copy" id="qCopy"></p>
+      </div>
+      <div class="quality" id="fileQuality" hidden>
+        <p class="q-title" id="fqTitle"></p>
+        <p class="q-copy" id="fqCopy"></p>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<footer class="app-footer">
+  <p>All processing happens in your browser. Your image never leaves your computer.</p>
+  <p>Slot sizes are the minimums we found in KDP's A+ Content Manager (checked 30 Oct 2026). KDP may change them.</p>
+</footer>
+
+<script src="presets.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
